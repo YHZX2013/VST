@@ -2584,12 +2584,12 @@ Proof.
   elimtype False.
   apply H.
   assert (exist (fun t0 : ShareTree => canonicalTree t0) (Leaf false) c =
-                 core (exist (fun t0 : ShareTree => canonicalTree t0) (Leaf false) c)).
+                 the_unit).
   simpl.
   unfold BAF.bot.
   apply exist_ext;trivial.
   rewrite H0.
-  apply core_identity.
+  apply unit_identity.
 
   rewrite unrel_equation.
   destruct c as [? [? [? ?]]].

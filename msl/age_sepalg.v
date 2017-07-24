@@ -230,15 +230,15 @@ Proof.
 Qed.
 
 Lemma comparable_fashionR {A} {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A} {agA: ageable A} {XA: Age_alg A} : forall x y,
-  comparable x y -> fashionR x y.
+  fashionR x y.
 Proof.
   intros.
-  apply comparable_common_unit in H.
-  destruct H as [u [H1 H2]].
-  hnf; transitivity (level u).
+  hnf; transitivity (level the_unit).
   apply joins_fashionR; eauto.
+  exists x; apply join_comm, join_unit.
   symmetry.
   apply joins_fashionR; eauto.
+  exists y; apply join_comm, join_unit.
 Qed.
 
 Lemma age_identity {A} `{asaA: Age_alg A}: forall phi phi', age phi phi'->
@@ -251,22 +251,6 @@ destruct (unage_join _ H1 H) as [y [? [? [? ?]]]].
 spec H0 y x H2.
 subst.
 unfold age in *. congruence.
-Qed.
-
-Lemma age_comparable {A} {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A} {agA: ageable A}{asaA: Age_alg A}:
-    forall phi1 phi2 phi1' phi2', age phi1 phi1' -> age phi2 phi2' ->
-      comparable phi1 phi2 -> comparable phi1' phi2'.
-Proof.
-  intros.
-  destruct (comparable_common_unit H1) as [e [? ?]].
-  destruct (age1_join _ (join_comm H2) H) as [a [b [? [? ?]]]].
-  destruct (age1_join _ (join_comm H3) H0) as [c [d [? [? ?]]]].
-  assert (c=a) by (unfold age in *; congruence); subst c.
-  assert (b=phi1') by (unfold age in *; congruence). subst b.
-  assert (d=phi2') by (unfold age in *; congruence). subst d.
-  apply common_unit_comparable.
-  exists a.
-  split; apply join_comm; auto.
 Qed.
 
   Lemma asa_nat : @Age_alg nat (Join_equiv nat) ag_nat.
@@ -376,27 +360,6 @@ Proof.
   split; congruence.
 Qed.
 
- Lemma level_core {A}{JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}{agA: ageable A}{AgeA: Age_alg A}:
-     forall m:A, level (core m) = level m.
- Proof. intros.
-  generalize (core_unit m); unfold unit_for; intro.
-  apply join_level in H. intuition.
- Qed.
-
-Lemma age_core_eq {A}{JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}{agA: ageable A}{AgeA: Age_alg A}:
-  forall x y x' y', age x x' -> age y y' -> core x = core y -> core x' = core y'.
-Proof.
- intros.
- generalize (core_unit x); unfold unit_for; intro. apply join_comm in H2.
- generalize (core_unit y); unfold unit_for; intro. apply join_comm in H3.
- destruct (age1_join _ H2 H) as [u [v [? [? ?]]]].
- destruct (age1_join _ H3 H0) as [i [j [? [? ?]]]].
- unfold age in *. rewrite H in H6. inv H6. rewrite H0 in H9; inv H9.
- rewrite H1 in *. rewrite H5 in H8; inv H8.
- apply join_core2 in H4. apply join_core2 in H7.
-  congruence.
-Qed.
-
 Lemma age_twin {A}  {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}{AG: ageable A}{XA: Age_alg A}:
   forall phi1 phi2 n phi1',
   level phi1 = level phi2 ->
@@ -453,27 +416,6 @@ Qed.
 Lemma strong_nat_ind (P : nat -> Prop) (IH : forall n, (forall i, lt i n -> P i) -> P n) n : P n.
 Proof.
   apply IH; induction n; intros i li; inversion li; eauto.
-Qed.
-
-Lemma age_core {A}{JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}{CA: Canc_alg A}{agA: ageable A}{AgeA: Age_alg A}:
-  forall x y : A, age x y -> age (core x) (core y).
-Proof.
- intros. unfold age in *.
- pose proof (core_unit x).
- unfold unit_for in H0.
- destruct (age1_join2 _ H0 H) as [a [b [? [? ?]]]].
- unfold age in H3. rewrite H3 in H; inv H.
- pose proof (core_unit y).
- pose proof (join_canc H1 H). subst. apply H2.
-Qed.
-
-Lemma necR_core {A}{JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}{CA: Canc_alg A}{agA: ageable A}{AgeA: Age_alg A}:
-  forall x y : A, necR x y -> necR (core x) (core y).
-Proof.
- induction 1.
- constructor 1; apply age_core; auto.
- constructor 2.
- constructor 3 with (core y); auto.
 Qed.
 
 Definition relation_mul {A: Type} (R0 R1: relation A) (x y: A) := exists z, R0 x z /\ R1 z y.
@@ -597,36 +539,6 @@ Proof.
       * reflexivity.
 Qed.
 
-Lemma power_age_core: forall {A:Type} {agA:ageable A} {JA: Join A} {PA: Perm_alg A} {SaA: Sep_alg A} {XA: Age_alg A} {CaA: Canc_alg A} (x y: A) n,
-  relation_power n age x y -> relation_power n age (core x) (core y).
-Proof.
-  intros.
-  revert x y H; induction n; intros.
-  + simpl in H |- *.
-    subst; reflexivity.
-  + simpl in H |- *.
-    destruct H as [z [?H ?H]].
-    exists (core z).
-    split.
-    - apply age_core; auto.
-    - apply IHn; auto.
-Qed.
-
-Lemma power_age_core_eq: forall {A:Type} {agA:ageable A} {JA: Join A} {PA: Perm_alg A} {SaA: Sep_alg A} {XA: Age_alg A} (x x' y y': A) n,
-  relation_power n age x x' -> relation_power n age y y' -> core x = core y -> core x' = core y'.
-Proof.
-  intros.
-  revert x y H H0 H1; induction n; intros.
-  + simpl in H, H0 |- *.
-    subst; auto.
-  + simpl in H, H0 |- *.
-    destruct H as [x'' [?H ?H]].
-    destruct H0 as [y'' [?H ?H]].
-    pose proof age_core_eq _ _ _ _ H H0 H1.
-    specialize (IHn x'' y'' H2 H3 H4).
-    auto.
-Qed.
-
 Lemma levelS_age {A: Type} {agA: ageable A} : forall (x:A) n,
   S n = level x ->
   exists y, age x y /\ n = level y.
@@ -730,23 +642,3 @@ Proof.
     rewrite H0 in H1.
     inversion H1.
 Qed.
-
-Lemma power_age_parallel': forall {A:Type} {agA:ageable A} {JA: Join A} {PA: Perm_alg A} {SaA: Sep_alg A} {XA: Age_alg A} (x x' y: A) n,
-  core x = core y ->
-  relation_power n age x x' ->
-  exists y', relation_power n age y y' /\ core x' = core y'.
-Proof.
-  intros.
-  assert (level x = level y).
-  Focus 1. {
-    pose proof level_core y.
-    pose proof level_core x.
-    rewrite H in H2.
-    congruence.
-  } Unfocus.
-  destruct (power_age_parallel x x' y n H1 H0) as [y' ?H].
-  exists y'.
-  split; [auto |].
-  eapply power_age_core_eq; eauto.
-Qed.
-

@@ -94,8 +94,8 @@ econstructor; eauto.
 spec H.
 econstructor; eauto.
 subst phi1b.
-generalize (join_canc (join_comm H0) (join_comm H3)).
-intro; subst phi2b.
+(*generalize (join_canc (join_comm H0) (join_comm H3)).
+intro; subst phi2b.*)
 exists phi1a; exists phi2a; split; auto.
 split; auto.
 split; auto.
@@ -182,7 +182,7 @@ extensionality w; apply prop_ext; split; intros;
 (destruct H as [w1 [w2 [? [? ?]]]]; exists w2; exists w1; split ; [apply join_comm; auto | split; auto]).
 Qed.
 
-Lemma sepcon_emp {A} {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}{CA: Canc_alg A}: forall P, (P * emp) = P.
+Lemma sepcon_emp {A} {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}: forall P, (P * emp) = P.
 Proof.
 intros.
 extensionality w; apply prop_ext; split; intros.
@@ -199,11 +199,11 @@ apply join_comm.
 apply identity_unit; auto.
 Qed.
 
-Lemma emp_sepcon {A} {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}{CA: Canc_alg A}:
+Lemma emp_sepcon {A} {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}:
     forall P, (emp*P) = P.
 Proof. intros. rewrite sepcon_comm; rewrite sepcon_emp; auto. Qed.
 
-Lemma precise_emp {A} {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}{CA: Canc_alg A}:
+Lemma precise_emp {A} {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}:
      precise emp.
 Proof.
 intros.
@@ -286,7 +286,7 @@ destruct H; auto.
 split; auto.
 Qed.
 
-Lemma emp_wand {A} {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}{CA: Canc_alg A}:
+Lemma emp_wand {A} {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}:
     forall P, emp -* P = P.
 Proof.
 intros.
@@ -320,7 +320,7 @@ Definition ewand {A} {JA: Join A} (P Q: pred A) : pred A :=
 
 (* Notation "P '-o' Q" := (ewand P Q) (at level 60, right associativity). *)
 
-Lemma emp_ewand {A} {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}{CA: Canc_alg A}:  forall P, ewand emp P = P.
+Lemma emp_ewand {A} {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}:  forall P, ewand emp P = P.
 Proof.
 intros.
 extensionality w; apply prop_ext; split; intros.
@@ -398,7 +398,7 @@ exists x; exists w; split; auto.
 Qed.
 
 Definition superprecise {A}  {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A} (P: pred A) :=
-   forall w1 w2, P w1 -> P w2 -> comparable w1 w2 -> w1=w2.
+   forall w1 w2, P w1 -> P w2 -> w1=w2.
 
 Lemma modus_ewand {A}  {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A} :  forall P Q, superprecise P -> P * (ewand P Q) |-- Q.
 Proof.
@@ -805,6 +805,7 @@ apply pred_ext.
 intros w [? ?].
 destruct H1 as [w1 [w2 [? [? ?]]]].
 exists w1; exists w2; split; [|split]; auto.
+
 apply join_unit1_e in H1; auto.
 subst; auto.
 apply andp_right.

@@ -15,7 +15,7 @@ intros.
 destruct X as [w2 ?]; exists w2; auto.
 Qed.
 
-Lemma cjoin_sub_irr {A} `{Perm_alg A}{CA: Canc_alg A}:
+(*Lemma cjoin_sub_irr {A} `{Perm_alg A}{CA: Sep_alg A}:
     forall {w1 w3: A} (j1 j2: constructive_join_sub w1 w3), proj1_sig j1 = proj1_sig j2.
 Proof.
 intros.
@@ -23,7 +23,7 @@ destruct j1 as [w2 ?].
 destruct j2 as [w2' ?].
 simpl.
 apply (join_canc (join_comm j) (join_comm j0)).
-Qed.
+Qed.*)
 
 Lemma cjoin_sub_trans {A} `{Perm_alg A}: forall a b c,
           constructive_join_sub a b -> constructive_join_sub b c -> constructive_join_sub a c.

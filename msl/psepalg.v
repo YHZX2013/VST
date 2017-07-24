@@ -120,13 +120,6 @@ Section PSA_LIFT.
    hnf in H. simpl in H. apply n in H. auto.
   Qed.
 
-  Instance Canc_lift {CA: Canc_alg A}: Canc_alg lifted.
-  Proof.
-    repeat intro. do 2 red in H,H0.
-    destruct a1; destruct a2.    generalize (join_canc H H0); intro. simpl in H1.
-    subst; f_equal; auto. apply proof_irr.
-  Qed.
-
   Instance Disj_lift {DA: Disj_alg A}: Disj_alg lifted.
   Proof.
     repeat intro. do 2 red in H.  apply join_self in H.  destruct a; destruct b; simpl in *; subst;
@@ -175,7 +168,7 @@ Section PSA_LIFT.
     destruct H. exists x. apply H.
   Qed.
 
-  Lemma lifted_full {CA: Canc_alg A} : forall a : lifted,
+  Lemma lifted_full {CA: Sep_alg A} : forall a : lifted,
     @full A J_A a -> full a.    (* converse not provable *)
   Proof with auto.
     intros. do 2 intro.
@@ -194,7 +187,6 @@ End PSA_LIFT.
 Existing Instance Join_lift.  (* Must not be inside a Section *)
 Existing Instance Perm_lift.
 Existing Instance Pos_lift.
-Existing Instance Canc_lift.
 Existing Instance Disj_lift.
 Arguments mk_lifted [A J_A] _ _.
 
@@ -238,21 +230,9 @@ Section SA_LOWER.
  Qed.
 
  Instance Sep_lower: @Sep_alg _ Join_lower.
- Proof. apply mkSep with (fun _ => None); intros.
-   constructor. reflexivity.
+ Proof. apply mkSep with None; intros.
+   constructor.
  Defined.
-
-  Instance Sing_lower: @Sing_alg _ Join_lower _.
-  Proof.
-     apply (mkSing None). intros. reflexivity. 
-  Defined.
-
-  Instance Canc_lower {psa_A: Pos_alg A}{CA: Canc_alg A}: @Canc_alg _ Join_lower.
-  Proof. repeat intro.
-    inv H; inv H0; auto. apply no_units in H3; contradiction.
-    apply no_units in H1; contradiction.
-   f_equal. apply (join_canc H1 H4). 
- Qed.
 
    Instance Disj_lower {DA: Disj_alg A}: @Disj_alg _ Join_lower.
   Proof. repeat intro. 
@@ -262,15 +242,11 @@ Section SA_LOWER.
 End SA_LOWER.
 Arguments Perm_lower _ [Pj_A][PA_A].
 Arguments Sep_lower _ [Pj_A].
-Arguments Sing_lower _ [Pj_A].
-Arguments Canc_lower _ [Pj_A][psa_A][CA] _ _ _ _ _ _.
 Arguments Disj_lower _ [Pj_A][DA] _ _ _.
 
 Existing Instance Join_lower.  (* Must not be inside a Section *)
 Existing Instance Perm_lower.
 Existing Instance Sep_lower.
-Existing Instance Sing_lower.
-Existing Instance Canc_lower.
 Existing Instance Disj_lower.
 
   (* General facts about lowering *)
@@ -422,8 +398,8 @@ Section FinitePartialMap.
   Instance Perm_fpm : @Perm_alg fpm Join_fpm :=
     Perm_prop (A -> Rng) _ _ finMap finMap_join.
 
-  Lemma finMap_core  x: finMap x -> 
-        finMap (@core _ _ (Sep_fun A (option B) Join_Rng _ ) x).
+  Lemma finMap_the_unit  x: finMap x -> 
+        finMap (@the_unit _ _ (Sep_fun A (option B) Join_Rng _ )).
   Proof. intros. exists nil; intros; reflexivity. Qed.
 
   Definition empty_fpm : fpm.
@@ -433,20 +409,9 @@ Section FinitePartialMap.
 
   Instance Sep_fpm : @Sep_alg fpm Join_fpm.
   Proof. 
-    apply mkSep with (core := fun _ => empty_fpm).
-     intros. intro a. simpl. constructor. auto.
+    apply mkSep with empty_fpm.
+     intros. constructor.
    Defined.
-
-  Instance Sing_fpm:  @Sing_alg fpm _ _.
-  Proof.
-  apply mkSing with (the_unit := empty_fpm).
-  intros ?. simpl. auto.
-  Defined.
-
-  Instance Canc_fpm {CA_B: Canc_alg B}: Canc_alg fpm.
-  Proof. repeat intro.
-    apply (join_canc H H0).
-  Qed.
 
   Instance Disj_fpm {DA_B: Disj_alg B}: Disj_alg fpm.
   Proof. repeat intro. apply (join_self H). Qed.

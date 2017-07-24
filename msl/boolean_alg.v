@@ -93,8 +93,6 @@ Module Type BA_FACTS.
 
   Axiom pa: Perm_alg t.   Existing Instance pa.
   Axiom sa : Sep_alg t.   Existing Instance sa.
-  Axiom ca : Canc_alg t. Existing Instance ca.
-  Axiom singa : Sing_alg t.   Existing Instance singa.
   Axiom da : Disj_alg t.   Existing Instance da.
 End BA_FACTS.
 
@@ -842,26 +840,10 @@ Module BA_Facts (BA:BOOLEAN_ALGEBRA) <: BA_FACTS.
   Qed.
 
   Instance sa: Sep_alg t.
-  Proof.  apply mkSep with (fun _ => bot).
+  Proof.  apply mkSep with bot.
     intros. unfold unit_for. constructor. rewrite glb_commute; apply glb_bot.
              rewrite lub_commute; apply lub_bot.
-    intros. reflexivity.
   Defined.
-
-  Instance singa: Sing_alg t.
-  Proof.  apply (mkSing bot). unfold core; intros; simpl. reflexivity.
-  Defined.
-
-  Instance ca: Canc_alg t.
-  Proof. repeat intro.  hnf in *. intuition.
-    apply distrib_spec with b.
-    rewrite lub_commute; rewrite H2.
-    rewrite lub_commute; rewrite H3.
-    trivial.
-    rewrite glb_commute; rewrite H1.
-    rewrite glb_commute; rewrite H.
-    trivial.
-  Qed.
 
   Instance da: Disj_alg t.
   Proof. repeat intro.

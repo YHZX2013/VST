@@ -71,7 +71,7 @@ Require Import msl.eq_dec.
     econstructor; eauto.
   Qed.
 
-  Theorem distributive_cross_split {A} `{Perm_alg A}{SA: Sep_alg A}{CA: Canc_alg A}:
+(*  Theorem distributive_cross_split {A} `{Perm_alg A}{SA: Sep_alg A}:
      sa_distributive A -> Cross_alg A.
   Proof.
     intros H0.
@@ -92,7 +92,7 @@ Require Import msl.eq_dec.
     generalize (join_eq H5 (join_comm H10)); intro.
     rewrite <- H12 in *; clear H12 h.
     eapply join_canc; eauto.
-  Qed.
+  Qed.*)
 
 (** NOTICE ABOUT REDUNDANT LEMMAS:
  Since sa_distribute <-> cross_split, many of the proofs below are redundant.
@@ -219,7 +219,7 @@ Proof.
   auto.
 Qed.
 
-Lemma constructive_join_sub_smash {A} {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}{CA: Canc_alg A}:
+(*Lemma constructive_join_sub_smash {A} {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}:
   (forall x:A, {identity x}+{~identity x}) ->
   forall a c : lifted JA,
     constructive_join_sub (proj1_sig a) (proj1_sig c) ->
@@ -231,16 +231,16 @@ destruct (X b).
 assert (a=c).
 destruct a; destruct c. apply exist_ext.
 simpl in j.
-eapply join_eq; try apply j. apply join_comm; apply identity_unit; eauto.
+eapply join_eq; try apply j. apply identity_unit in i; subst. apply join_comm, join_unit.
 subst c.
 exists None; constructor.
 exists (Some (mk_lifted _ (nonidentity_nonunit n))).
 constructor.
 destruct a; destruct c; simpl in *.
 auto.
-Qed.
+Qed.*)
 
-Lemma sa_distributive_smash : forall A JA {PA: Perm_alg A}{SA: Sep_alg A}{CA: Canc_alg A},
+(*Lemma sa_distributive_smash : forall A JA {PA: Perm_alg A}{SA: Sep_alg A},
   (forall x:A, {identity x}+{~identity x}) ->
   @sa_distributive A JA ->
   sa_distributive (option (lifted JA)).
@@ -285,9 +285,9 @@ split; [split|]; eauto.
 apply constructive_join_sub_smash; auto.
 apply constructive_join_sub_smash; auto.
 constructor; auto.
-Qed.
+Qed.*)
 
-Lemma Cross_smash : forall A (JA: Join A) {PA: Perm_alg A}{SA: Sep_alg A}{CA: Canc_alg A},
+(*Lemma Cross_smash : forall A (JA: Join A) {PA: Perm_alg A}{SA: Sep_alg A},
   (forall x:A, {identity x}+{~identity x}) ->
   Cross_alg A ->
   Cross_alg (option (lifted JA)).
@@ -296,20 +296,20 @@ Proof.
   hnf; intros.
   destruct a as [[a Na] | ].
 Focus 2.
-  apply join_unit1_e in H; [ | apply None_identity]. subst z.
+  eapply join_eq in H; [|red; constructor]. subst z.
   exists (None,None,c,d); repeat split; auto; constructor; auto.
   destruct b as [[b Nb] | ].
 Focus 2.
-  apply join_unit2_e in H; [ | apply None_identity]. subst z.
+  eapply join_eq in H; [|red; constructor]. subst z.
   exists (c,d,None,None); repeat split; auto; constructor; auto.
   destruct c as [[c Nc] | ].
 Focus 2.
-  apply join_unit1_e in H0; [ | apply None_identity]. subst z.
+  eapply join_eq in H0; [|red; constructor]. subst z.
   exists (None, Some (exist nonunit _ Na), None, Some (exist nonunit _ Nb));
      repeat split; auto; constructor.
   destruct d as [[d Nd] | ].
 Focus 2.
-  apply join_unit2_e in H0; [ | apply None_identity]. subst z.
+  eapply join_eq in H0; [|red; constructor]. subst z.
   exists (Some (exist nonunit _ Na), None,Some (exist nonunit _ Nb),None); repeat split; auto; constructor; auto.
 
   destruct z as [[z Nz] | ]; [ | elimtype False; inv H].
@@ -317,8 +317,9 @@ Focus 2.
   destruct (X ac) as [Nac | Nac ].
   apply Nac in H1. subst ad. apply Nac in H3. subst bc.
   destruct (X bd) as [Nbd | Nbd].
-  apply join_unit2_e in H4; auto. subst d.
-  apply join_unit2_e in H2; auto. subst c.
+  apply identity_unit in Nbd; subst.
+  eapply join_eq in H4; [|eapply join_comm, join_unit]. subst d.
+  eapply join_eq in H2; [|eapply join_comm, join_unit]. subst c.
   rewrite (proof_irr Nd Na) in *. rewrite (proof_irr Nc Nb) in *.
   exists (None, Some (exist nonunit a Na), Some (exist nonunit b Nb), None);
     repeat split; auto;  constructor.
@@ -359,7 +360,7 @@ Focus 2.
 Qed.
 
 Lemma cross_split_fpm : forall A B
-      (JB: Join B) (PB: Perm_alg B)(SB : Sep_alg B)(CB: Canc_alg B)
+      (JB: Join B) (PB: Perm_alg B)(SB : Sep_alg B)
   (Bdec: forall x:B, {identity x}+{~identity x}) ,
   Cross_alg B  ->
   Cross_alg (fpm A (lifted JB)) .
@@ -396,7 +397,7 @@ Proof.
   exists x. intros. spec H5 a0. rewrite e in H5; auto. inv H5; auto.
   exists (exist _ s Hs, exist _ p Hp, exist _ q Hq, exist _ r Hr).
   simpl; intuition.
-Qed.
+Qed.*)
 
 Lemma Cross_fpm (A B: Type){JB: Join B} {PB: Perm_alg B}{PosB : Pos_alg B}
   {CrB: Cross_alg B}:   Cross_alg (fpm A B) .

@@ -27,7 +27,6 @@ Module Type KNOT_FULL_SA_INPUT.
   Parameter paf_F : pafunctor F Join_F.
   Parameter Perm_F: forall A, Perm_alg (F A).
   Parameter Sep_F: forall A, Sep_alg (F A).
-  Parameter Canc_F: forall A, Canc_alg (F A).
   Parameter Disj_F: forall A, Disj_alg (F A).
 End KNOT_FULL_SA_INPUT.
 
@@ -99,16 +98,13 @@ Module Type KNOT_FULL_SA.
   Parameter Join_knot: Join knot.  Existing Instance Join_knot.
   Parameter Perm_knot : Perm_alg knot.  Existing Instance Perm_knot.
   Parameter Sep_knot : Sep_alg knot.  Existing Instance Sep_knot.
-  Parameter Canc_knot : Canc_alg knot.  Existing Instance Canc_knot.
   Parameter Disj_knot : Disj_alg knot.  Existing Instance Disj_knot.
   Instance Join_nat_F: Join (nat * F predicate) :=
        Join_prod nat  (Join_equiv nat) (F predicate) _.
   Instance Perm_nat_F : Perm_alg (nat * F predicate) :=
     @Perm_prod nat _ _ _ (Perm_equiv _) (Perm_F _).
-  Instance Sep_nat_F : Sep_alg (nat * F predicate) :=
-    @Sep_prod nat _ _ _ (Sep_equiv _) (Sep_F predicate).
-  Instance Canc_nat_F: Canc_alg (nat * F predicate) :=
-    @Canc_prod nat _ _ _ (Canc_equiv _) (Canc_F predicate).
+(*  Instance Sep_nat_F : Sep_alg (nat * F predicate) :=
+    @Sep_prod nat _ _ _ (Sep_equiv _) (Sep_F predicate).*)
   Instance Disj_nat_F: Disj_alg (nat * F predicate) :=
     @Disj_prod nat _ _ _ (Disj_equiv _) (Disj_F predicate).
 
@@ -118,7 +114,7 @@ Module Type KNOT_FULL_SA.
   Axiom asa_knot : Age_alg knot.
 
 End KNOT_FULL_SA.
-
+(*
 Module KnotFullSa
   (KSAI': KNOT_FULL_SA_INPUT)
   (K': KNOT_BASIC with Module KI:=KSAI'.KI)
@@ -144,10 +140,8 @@ Module KnotFullSa
        Join_prod nat  (Join_equiv nat) (F predicate) _.
   Instance Perm_nat_F : Perm_alg (nat * F predicate) :=
       @Perm_prod nat _ _ _ (Perm_equiv _) (Perm_F _).
-  Instance Sep_nat_F: Sep_alg (nat * F predicate) :=
-      @Sep_prod nat _ _ _ (Sep_equiv _) (Sep_F predicate).
-  Instance Canc_nat_F: Canc_alg (nat * F predicate) :=
-      @Canc_prod nat _ _ _ (Canc_equiv _) (Canc_F predicate).
+(*  Instance Sep_nat_F: Sep_alg (nat * F predicate) :=
+      @Sep_prod nat _ _ _ (Sep_equiv _) (Sep_F predicate).*)
   Instance Disj_nat_F: Disj_alg (nat * F predicate) :=
       @Disj_prod nat _ _ _ (Disj_equiv _) (Disj_F predicate).
 
@@ -176,15 +170,8 @@ Module KnotFullSa
   Instance Perm_knot : Perm_alg knot :=
     Perm_preimage _ _ _ _ unsquash squash squash_unsquash unsquash_squash_join_hom.
 
-  Instance Sep_knot: Sep_alg knot :=
-    Sep_preimage _ _ _  unsquash squash squash_unsquash unsquash_squash_join_hom.
-
-  Instance Canc_knot : Canc_alg knot.
-  Proof. repeat intro.
-            do 3 red in H, H0.
-            apply unsquash_inj.
-            apply (join_canc H H0).
-  Qed.
+(*  Instance Sep_knot: Sep_alg knot :=
+    Sep_preimage _ _ _  unsquash squash squash_unsquash unsquash_squash_join_hom.*)
 
   Instance Disj_knot : Disj_alg knot.
   Proof.
@@ -391,3 +378,4 @@ Module KnotFullSa
   Qed.
 
 End KnotFullSa.
+*)

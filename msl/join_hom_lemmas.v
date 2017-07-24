@@ -261,7 +261,7 @@ Lemma join_hom_bij {A: Type} `{Perm_alg A}
     exists (f b).  auto.
   Qed.
 
-  Lemma join_hom_identity  {A}{B}`{Perm_alg A}{SA: Sep_alg A}{CA: Canc_alg A}`{Perm_alg B}{SB: Sep_alg B}{CB: Canc_alg B}:
+(*  Lemma join_hom_identity  {A}{B}`{Perm_alg A}{SA: Sep_alg A}`{Perm_alg B}{SB: Sep_alg B}:
       forall (f: A -> B) a1, identity a1 -> join_hom f -> identity (f a1).
   Proof.
     intros.
@@ -271,9 +271,9 @@ Lemma join_hom_bij {A: Type} `{Perm_alg A}
   Qed.
 
   Lemma join_hom2_identity  {A}{B}{C}
-          `{Perm_alg A}{SA: Sep_alg A}{CA: Canc_alg A}
-          `{Perm_alg B}{SB: Sep_alg B}{CB: Canc_alg B}
-          `{Perm_alg C}{SC: Sep_alg C}{CC: Canc_alg C}:
+          `{Perm_alg A}{SA: Sep_alg A}
+          `{Perm_alg B}{SB: Sep_alg B}
+          `{Perm_alg C}{SC: Sep_alg C}:
    forall (g: A -> B -> C) a1 b1,
       identity a1 -> identity b1 -> join_hom2 g -> identity (g a1 b1).
   Proof.
@@ -309,9 +309,9 @@ Lemma join_hom_bij {A: Type} `{Perm_alg A}
     destruct (comparable_common_unit H3) as [eb [? ?]].
     apply common_unit_comparable.
     exists (g ea eb); auto.
-  Qed.
+  Qed.*)
 
-(* EXamples: *)
+(* Examples: *)
 
 (*  This example doesn't make so much sense, as "comparable"
   is not so well-defined for Pos_algs

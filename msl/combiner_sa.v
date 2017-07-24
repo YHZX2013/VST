@@ -45,7 +45,7 @@ Proof with auto.
   apply join_comm...
 Qed.
 
-Lemma ijoin_assoc {A} {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}{CA: Canc_alg A} : forall a b c d e,
+Lemma ijoin_assoc {A} {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A} : forall a b c d e,
   ijoin a b d ->
   ijoin d c e ->
   {f : ijoinable A | ijoin b c f /\ ijoin a f e}.
@@ -57,31 +57,18 @@ Proof with auto.
   assert ((~identity f) /\ (~full f)).
     unfold midObj in *.
     split.
-    intro.
-    generalize (split_identity _ _ H1 H3); intro.
-    tauto.
+    intro X.
+    apply identity_unit in X; subst.
+    apply split_unit in H1; subst.
+    pose proof unit_identity; tauto.
     intro.
     spec H3 x. spec H3. exists x3...
-    spec H3 f x3 H2. subst x3.
-    apply unit_identity in H2.
     tauto.
   exists (existT midObj f H3).
   split...
 Qed.
 
-Lemma ijoin_canc {A}  {JA: Join A}{SA: Sep_alg A}{CA: Canc_alg A}: forall a a' b c,
-  ijoin a b c ->
-  ijoin a' b c ->
-  a = a'.
-Proof with auto.
-  intros.
-  icase a; icase a'; icase b; icase c.
-  unfold ijoin in *.
-  apply existT_ext.
-  eapply join_canc; eauto.
-Qed.
-
-Lemma ijoin_identity1 {A}  {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}{CA: Canc_alg A}: forall a b,
+(*Lemma ijoin_identity1 {A}  {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}: forall a b,
   ijoin a b b ->
   False.
 Proof with auto.
@@ -90,9 +77,9 @@ Proof with auto.
   destruct m. apply n.
   apply (unit_identity x0).
   apply H.
-Qed.
+Qed.*)
 
-Lemma ijoin_identity2 {A} {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}{CA: Canc_alg A}{DA: Disj_alg A}: forall a b,
+(*Lemma ijoin_identity2 {A} {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}{DA: Disj_alg A}: forall a b,
   ijoin a a b ->
   False.
 Proof with auto.
@@ -103,6 +90,18 @@ Proof with auto.
   assert (join x x x) by (apply H).
   apply unit_identity in H0.
   contradiction.
+Qed.*)
+
+Lemma ijoin_identity2 {A} {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}{DA: Disj_alg A}: forall a b,
+  ijoin a a b ->
+  a = b.
+Proof with auto.
+  intros.
+  icase a. icase b.
+  destruct m; destruct m0.
+  assert (x=x0). apply join_self. apply H. subst x0.
+  f_equal.
+  apply proof_irr.
 Qed.
 
 Section CombineJoin.
@@ -111,7 +110,6 @@ Variable A : Type.
 Variable JA: Join A.
 Variable pa_A : Perm_alg A.
 Variable sa_A : Sep_alg A.
-Variable ca_A : Canc_alg A.
 
 (* We either need an explicit top witness or some kind of axiom of choice
     (if not here, then in sa_fun or somesuch).  It is a little ugly this way but
@@ -229,14 +227,11 @@ Proof with auto.
    destruct (join_assoc H1 H3) as [sh' [? ?]].
    assert ((~identity sh') /\ (~full sh')).
      split; intro.
-     generalize (split_identity _ _ H0 H5); intro.
-     unfold midObj in *.
-     tauto.
+     apply identity_unit in H5; subst.
+     apply split_unit in H0; subst.
+     destruct m0 as [X]; contradiction X; apply unit_identity.
      spec H5 x.
      spec H5. exists A_top...
-     spec H5 sh' A_top H4.
-     subst sh'.
-     apply unit_identity in H4.
      unfold midObj in *.
      tauto.
   destruct (combjoin_assoc _ _ _ _ _ H2 H) as [v' [? ?]].
@@ -255,26 +250,6 @@ Proof with auto.
   apply join_comm...
 Qed.
 
-Lemma combineJ_canc {C1: Canc_alg T1}: forall a1 a2 b c : combiner,
-       join a1 b c -> join a2 b c -> a1=a2.
-Proof with auto.
-   intros. unfold join in H,H0.
-   icase c;icase b;icase a1;icase a2;inv H;inv H0;auto.
-
-   destruct (ijoin_identity1 _ _ H).
-   destruct (ijoin_identity1 _ _ H1).
-
-   generalize (ijoin_canc _ _ _ _ H1 H).
-   generalize (join_canc H2 H3); intros.
-   subst sh2 v2...
-
-   generalize (join_canc H2 H3).
-   generalize (combjoin_canc _ _ _ _ H1 H); intros.
-   f_equal...
-   icase sh0; icase sh1.
-   apply existT_ext...
-Qed.
-
 Lemma combineJ_ex_identities: forall a , {e : combiner &  join e a a}.
 Proof with auto.
    intros.
@@ -283,19 +258,21 @@ Proof with auto.
    constructor...
 Qed.
 
-Lemma combineJ_self {DA: Disj_alg A}:
+(*Lemma combineJ_self {DA: Disj_alg A}:
         forall a b : combiner, join a a b -> a = b.
 Proof.
   intros.
   icase a;icase b; inv H.
   destruct (ijoin_identity2 _ _ H0).
-  elimtype False. clear - DA H1 A_top_full.
-  icase sh. red in H1. simpl in H1.
+  admit.
+  icase sh. elimtype False. clear - DA H1 A_top_full.
+  red in H1.
   generalize (join_self H1); intro.
+  simpl in *.
   subst x.
   unfold midObj in *.
   tauto.
-Qed.
+Qed.*)
 
 Instance Perm_combiner : Perm_alg combiner.
 Proof. constructor.
@@ -318,50 +295,31 @@ Qed.
 
 Instance Sep_combiner: Sep_alg combiner.
 Proof.
-  apply mkSep with (fun _ => CEmpty).
-  intros. hnf.  destruct t; auto.
-  auto.
+  apply mkSep with CEmpty.
+  intros. hnf.  destruct a; auto.
 Defined.
 
-Instance Sing_combiner: Sing_alg combiner.
-Proof.
-  apply (mkSing CEmpty).
-  auto.
-Defined.
-
-Instance Canc_combiner {C1: Canc_alg T1}: Canc_alg combiner.
-Proof.
- repeat intro. eapply combineJ_canc; eauto.
-Qed.
-
-Instance Disj_combiner {D1: Disj_alg A}: Disj_alg combiner.
+(*Instance Disj_combiner {D1: Disj_alg A}: Disj_alg combiner.
 Proof.
  repeat intro. eapply combineJ_self; eauto.
-Qed.
+Qed.*)
 
 (* Usefull facts about combiners *)
 
-Lemma identity_combiner {C1: Canc_alg T1}: forall d : combiner,
+Lemma identity_combiner {C1: Sep_alg T1}: forall d : combiner,
   identity d ->
   d = CEmpty.
 Proof.
-  intros.
-  rewrite identity_unit_equiv in H.
-  icase d.
-  destruct H.
-  destruct (ijoin_identity1 _ _ H).
+  exact identity_unit.
 Qed.
 
-Lemma combiner_identity {C1: Canc_alg T1}:
+Lemma combiner_identity {C1: Sep_alg T1}:
   identity CEmpty.
 Proof.
-  intros.
-  rewrite identity_unit_equiv.
-  compute.
-  trivial.
+  exact unit_identity.
 Qed.
 
-Lemma combiner_full {C1: Canc_alg T1}: forall t2,
+Lemma combiner_full {C1: Sep_alg T1}: forall t2,
   full (CFull t2).
 Proof.
   unfold full.  intros.
@@ -424,7 +382,6 @@ Section ParameterizedCombiner.
   Variable JS : Join S.
   Variable pa_S : Perm_alg S.
   Variable sa_S : Sep_alg S.
-  Variable ca_S : Canc_alg S.
 
   Variable T1 : functor.
   Variable J1: forall A, Join (T1 A).
@@ -487,10 +444,6 @@ Section ParameterizedCombiner.
   Instance Sep_fcombiner (A: Type): Sep_alg (fcombiner A).
   Proof. apply Sep_combiner; auto.
   Defined.
-
-  Instance Canc_fcombiner (A: Type) (CA: Canc_alg (T1 A)): Canc_alg (fcombiner A).
-  Proof.  apply Canc_combiner; auto. apply combjoin_canc.
-  Qed.
 
   Definition combjoin_hom (A : Type) (B : Type)
     (f : T1 A -> T1 B) (g : T2 A -> T2 B) : Prop :=
