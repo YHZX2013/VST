@@ -20,7 +20,6 @@ Definition share : Type := Share.t.
 
 Instance pa_share : Perm_alg share := Share.pa.
 Instance sa_share : Sep_alg share := Share.sa.
-Instance ca_share : Canc_alg share := Share.ca.
 Definition emptyshare : share := Share.bot.
 Definition fullshare : share := Share.top.
 
@@ -67,32 +66,16 @@ Qed.
 
 Hint Resolve bot_identity.
 
+Lemma unit_bot : the_unit = bot.
+Proof.
+  symmetry; apply identity_unit; auto.
+Qed.
+
 Lemma identity_share_bot : forall s,
   identity s -> s = bot.
 Proof.
   intros.
-  apply identities_unique; auto.
-  exists s.
-  apply join_comm.
-
-  destruct (top_correct' s).
-  assert (x = top).
-  apply H; auto.
-  subst x; auto.
-  destruct (top_correct' bot).
-  assert (x = top).
-  apply bot_identity; auto.
-  subst x; auto.
-  apply join_comm in H1.
-  destruct (join_assoc H0 H1); intuition.
-  assert (x = top).
-  apply H; auto.
-  subst x.
-  replace bot with s.
-  rewrite identity_unit_equiv in H.
-  trivial.
-  eapply joins_units_eq; try apply H0. exists top; eauto.
-  simpl. split. apply glb_bot. apply lub_bot.
+  rewrite <- unit_bot; apply identity_unit; auto.
 Qed.
 
 Lemma factoryOverlap' : forall f1 f2 n1 n2,
@@ -301,12 +284,7 @@ Qed.
 Lemma bot_join_eq : forall x, join bot x x.
 Proof.
   intros.
-  destruct (join_ex_identities x); intuition.
-  destruct H0.
-  generalize (H _ _ H0).
-  intros; subst; auto.
-  replace bot with x0; auto.
-  apply identity_share_bot; auto.
+  rewrite <- unit_bot; apply join_unit.
 Qed.
 
 Lemma join_bot_eq : forall x, join x bot x.
@@ -329,15 +307,15 @@ Proof.
   apply identity_share_bot; auto.
 Qed.
 
-Lemma dec_share_nonunit : forall x:t, { nonunit x } + { ~ nonunit x }.
+(*Lemma dec_share_nonunit : forall x:t, { nonunit x } + { ~ nonunit x }.
 Proof.
   intro x.
   destruct (dec_share_identity x) as [H | H]; [right | left].
   + intro; revert H. apply nonunit_nonidentity; auto.
   + apply nonidentity_nonunit; auto.
-Qed.
+Qed.*)
 
-Lemma fullshare_full : full fullshare.
+(*Lemma fullshare_full : full fullshare.
 Proof.
   unfold full.
   intros.
@@ -349,9 +327,9 @@ Proof.
   destruct (join_assoc H H0) as [s [H1 H2]].
   apply join_comm in H2. apply unit_identity in H2.
   eapply split_identity; eauto.
-Qed.
+Qed.*)
 
-Lemma join_sub_fullshare : forall sh,
+(*Lemma join_sub_fullshare : forall sh,
   join_sub fullshare sh -> sh = fullshare.
 Proof.
   intros.
@@ -373,7 +351,7 @@ Proof with auto.
   destruct H0.
   spec H x. spec H. exists top...
   spec H sh top (join_comm H0)...
-Qed.
+Qed.*)
 
 Lemma rel_congruence : forall a x1 x2,
   join_sub x1 x2 ->
@@ -454,8 +432,16 @@ Proof with auto.
   destruct (eq_dec sh1 sh)...
   subst sh1.
   generalize (split_join _ _ _ H0); intro.
-  apply join_comm in H1.
-  apply unit_identity in H1...
+  assert (sh2 <= glb sh sh2).
+  { apply glb_greatest, ord_refl.
+    rewrite leq_join_sub.
+    eapply join_join_sub; eauto. }
+  rewrite (split_disjoint _ _ _ H0) in H2.
+  assert (sh2 = bot).
+  { apply ord_antisym; auto.
+    apply bot_correct. }
+  subst; contradiction n.
+  apply bot_identity.
 Qed.
 
 Lemma nonemp_split_neq2: forall sh sh1 sh2, nonidentity sh -> split sh = (sh1, sh2) -> sh2 <> sh.
@@ -467,7 +453,17 @@ Proof with auto.
   destruct (eq_dec sh2 sh)...
   subst sh2.
   generalize (split_join _ _ _ H0); intro.
-  apply unit_identity in H1...
+  assert (sh1 <= glb sh1 sh).
+  { apply glb_greatest.
+    apply ord_refl.
+    rewrite leq_join_sub.
+    eapply join_join_sub; eauto. }
+  rewrite (split_disjoint _ _ _ H0) in H2.
+  assert (sh1 = bot).
+  { apply ord_antisym; auto.
+    apply bot_correct. }
+  subst; contradiction n.
+  apply bot_identity.
 Qed.
 
 Lemma bot_unit: forall sh,
@@ -496,14 +492,14 @@ unfold nonidentity in *.
 generalize (rel_nontrivial sh1 sh2); intro. intuition.
 Qed.
 
-Lemma share_rel_nonunit: forall {sh1 sh2: Share.t},
+(*Lemma share_rel_nonunit: forall {sh1 sh2: Share.t},
        nonunit sh1 -> nonunit sh2 -> nonunit (Share.rel sh1 sh2).
 Proof. intros. apply nonidentity_nonunit. apply share_rel_nonidentity.
 intro. apply (@identity_unit _ _ _ sh1 Share.bot) in H1. apply H in H1; auto.
 apply joins_comm. apply bot_joins.
 intro. apply (@identity_unit _ _ _ sh2 Share.bot) in H1. apply H0 in H1; auto.
 apply joins_comm. apply bot_joins.
-Qed.
+Qed.*)
 
 
 Lemma decompose_bijection: forall sh1 sh2,
@@ -530,7 +526,6 @@ Section SM.
   Instance Join_map : Join map := Join_fpm _.
   Instance pa_map : Perm_alg map := Perm_fpm _ _.
   Instance sa_map : Sep_alg map := Sep_fpm _ _.
-  Instance ca_map {CA: Canc_alg B} : Canc_alg map := Canc_fpm _.
   Instance da_map {DA: Disj_alg B} : Disj_alg map := @Disj_fpm _ _ _ _.
 
   Definition map_share (a:A) (m:map) : share :=
@@ -595,13 +590,14 @@ Qed.
     constructor. constructor.
  Qed.
 
-  Lemma empty_map_identity {CAB: Canc_alg B}: identity empty_map.
+  Lemma empty_map_identity : identity empty_map.
   Proof.
-    rewrite identity_unit_equiv.
-    intro x. simpl. auto. constructor.
+    repeat intro.
+    eapply join_eq; eauto.
+    apply empty_fpm_join.
   Qed.
 
-  Lemma map_identity_unique {CAB: Canc_alg B}: forall m1 m2:map,
+  Lemma map_identity_unique {CAB: Sep_alg B}: forall m1 m2:map,
     identity m1 -> identity m2 -> m1 = m2.
   Proof.
     intros.
@@ -609,38 +605,27 @@ Qed.
     cut (x = x0). intros. subst x0.
     replace f0 with f; auto.
     apply proof_irr; auto.
-    rewrite identity_unit_equiv in H, H0.
-    extensionality a.
-    spec H a; spec H0 a.
-    apply lower_inv in H.
-    apply lower_inv in H0.
-    destruct H; destruct H0; simpl in *.
-    intuition; congruence.
-    destruct s0 as [? [? [? [? [? [? ?]]]]]].
-    rewrite H in H1. inv H1. rewrite H0 in H; inv H.
-    destruct x3. destruct H2. simpl in *. apply no_units in H. contradiction.
-    destruct s as [? [? [? [? [? [? ?]]]]]].
-    rewrite H in H0; inv H0. rewrite H1 in H; inv H.
-    destruct x2. destruct H2. simpl in *. apply no_units in H. contradiction.
-    destruct s as [? [? [? [? [? [? ?]]]]]].
-    rewrite H in H0; inv H0. rewrite H1 in H; inv H.
-    destruct x2. destruct H2. simpl in *. apply no_units in H. contradiction.
+    apply identity_unit in H; apply identity_unit in H0.
+    rewrite <- H in H0.
+    inv H0; auto.
   Qed.
 
-  Lemma map_identity_is_empty  {CAB: Canc_alg B} : forall m,
+  Lemma map_identity_is_empty  {CAB: Sep_alg B} : forall m,
     identity m -> m = empty_map.
   Proof.
     intros; apply map_identity_unique; auto.
     apply empty_map_identity.
   Qed.
 
-  Lemma empty_map_join {CAB: Canc_alg B} : forall m,
+  Lemma empty_map_unit : the_unit = empty_map.
+  Proof.
+    pose proof (identity_unit empty_map_identity); auto.
+  Qed.
+
+  Lemma empty_map_join : forall m,
     join empty_map m m.
   Proof.
-    intro m. destruct (join_ex_units m).
-    replace empty_map with x; auto.
-    apply map_identity_is_empty.
-    eapply unit_identity; eauto.
+    intro; rewrite <- empty_map_unit; apply join_unit.
   Qed.
 
   Lemma map_val_bot  : forall a m,

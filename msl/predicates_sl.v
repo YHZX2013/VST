@@ -466,7 +466,7 @@ Definition precise {A} {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}{AG: ageable A
 Definition precise2  {A} {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}{AG: ageable A}{XA: Age_alg A} (P: pred A) : Prop :=
      forall Q R, (P * (Q && R) = (P * Q) && (P * R))%pred.
 
-Lemma precise_eq {A} {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}{AG: ageable A}{XA: Age_alg A}: precise =
+(*Lemma precise_eq {A} {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}{AG: ageable A}{XA: Age_alg A}: precise =
                  fun P : pred A => forall Q R, (P * (Q && R) = (P * Q) && (P * R))%pred.
 Proof.
 extensionality P.
@@ -507,7 +507,7 @@ apply comparable_sym; apply join_comparable with w1; auto.
 apply comparable_trans with w.
 apply join_comparable with w1a; auto.
 apply comparable_sym; apply join_comparable with w1; auto.
-Qed.
+Qed.*)
 
 Lemma derives_precise {A} {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}{AG: ageable A}{XA: Age_alg A}:
   forall P Q, (P |-- Q) -> precise Q -> precise P.
@@ -517,11 +517,8 @@ Qed.
 
 Lemma precise_emp {A} {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}{AG: ageable A}{XA: Age_alg A}: precise emp.
 Proof.
-intros.
-rewrite precise_eq.
-intros.
-repeat rewrite emp_sepcon.
-auto.
+repeat intro.
+apply identity_unit in H; apply identity_unit in H0; subst; auto.
 Qed.
 
 Definition superprecise {A}  {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}{AG: ageable A}{XA: Age_alg A} (P: pred A) :=
@@ -619,7 +616,7 @@ simpl; eapply unit_identity; eauto.
 Qed.
 
 
-Lemma pry_apart {A}  {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}{DA: Disj_alg A}{CrA: Cross_alg A}{AG: ageable A}{XA: Age_alg A}:
+(*Lemma pry_apart {A}  {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}{DA: Disj_alg A}{CrA: Cross_alg A}{AG: ageable A}{XA: Age_alg A}:
   forall G P Q, superprecise G -> P = ewand G (G * P) ->
                        (P * Q) && (G * TT) |-- (P * G * (ewand G Q)).
 Proof.
@@ -661,12 +658,12 @@ split; auto.
 exists w2; exists w4; split; auto.
 unfold ewand.
 exists w4; exists w3; split; auto.
-Qed.
+Qed.*)
 
 Definition wk_split {A} {JA: Join A} :=
       forall a b c d e : A, join a b c -> join d e c -> joins a d -> join_sub d b.
 
-Lemma crosssplit_wkSplit {A}  {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}{DA: Disj_alg A}{CrA: Cross_alg A}{AG: ageable A}{XA: Age_alg A}:
+(*Lemma crosssplit_wkSplit {A}  {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}{DA: Disj_alg A}{CrA: Cross_alg A}{AG: ageable A}{XA: Age_alg A}:
     wk_split.
 Proof.
 unfold wk_split.
@@ -725,9 +722,9 @@ destruct H6 as [y w2_y_w5].
                exists y. split. apply (join_comm myH6).
                split. exists w2. exists w4. split. apply (join_comm H4). split; assumption.
                exists w4. exists x; split. apply (join_comm myH1). split; assumption.
-Qed.
+Qed.*)
 
-Lemma ewand_overlap {A} {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}{DA: Disj_alg A}{CrA: Cross_alg A}{AG: ageable A}{XA: Age_alg A}:
+(*Lemma ewand_overlap {A} {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}{DA: Disj_alg A}{CrA: Cross_alg A}{AG: ageable A}{XA: Age_alg A}:
     forall (P Q: pred A),
        superprecise Q ->
        ewand TT (P * Q) * Q |-- ewand TT (P * Q).
@@ -743,25 +740,15 @@ destruct (join_assoc H5 H) as [f [? ?]].
 destruct (join_assoc H7 (join_comm H8)) as [g [? ?]].
 generalize (join_self H10); intro.
 subst g.
-assert (identity d).
-eapply unit_identity; eauto.
-assert (b=w2).
-eapply join_canc; eauto.
-subst b.
-assert (f=w2).
-eapply join_eq; eauto.
-subst f.
+eexists.
 clear H11 H10 H7.
-assert (c=w1).
- spec H12 c w1. apply H12. auto.
-subst c.
 clear H9 H5.
 destruct (join_assoc H6 H2) as [h [? ?]].
 generalize (join_eq H5 H); clear H5; intro; subst h.
 exists a; exists w6; split; auto.
 split; auto.
 exists w3; exists w2; split; auto.
-Qed.
+Qed.*)
 
 Lemma ewand_derives {A} {JA: Join A}{PA: Perm_alg A}{AG: ageable A}{XA: Age_alg A}:
   forall P P' Q Q',  P |-- P' -> Q |-- Q' -> ewand P Q |-- ewand P' Q'.
@@ -833,7 +820,7 @@ do 2 econstructor; eauto.
 Qed.
 
 
-Lemma ewand_sepcon2 {A} {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}{DA: Disj_alg A}{CrA: Cross_alg A}{AG: ageable A}{XA: Age_alg A}:
+(*Lemma ewand_sepcon2 {A} {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}{DA: Disj_alg A}{CrA: Cross_alg A}{AG: ageable A}{XA: Age_alg A}:
       forall
           R (SP: superprecise R)
           P (H: P = ewand R (R * P))
@@ -869,7 +856,7 @@ destruct (join_assoc H5 (join_comm H0)) as [wf [? ?]].
 generalize (join_canc (join_comm H7) H2); clear H7; intro.
 subst wf.
 auto.
-Qed.
+Qed.*)
 
 Lemma sepcon_andp_prop2 {A} {JA: Join A}{PA: Perm_alg A}{AG: ageable A}{XA: Age_alg A}:
   forall P Q R,  (P * (!!Q && R) = !!Q && (P * R))%pred.

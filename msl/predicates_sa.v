@@ -76,7 +76,7 @@ Definition precise {A}  {JA: Join A}{PA: Perm_alg A}  (P: pred A) : Prop :=
 Definition precise2  {A} {JA: Join A}{PA: Perm_alg A}  (P: pred A) : Prop :=
      forall Q R, P * (Q && R) = (P * Q) && (P * R).
 
-Lemma precise_eq {A}  {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}{CA: Canc_alg A}:
+(*Lemma precise_eq {A}  {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}:
      precise =
                  fun P : pred A => forall Q R, P * (Q && R) = (P * Q) && (P * R).
 Proof.
@@ -114,7 +114,7 @@ subst.
 generalize (join_canc H2 H4); intro.
 subst.
 eapply join_canc; eauto.
-Qed.
+Qed.*)
 
 Lemma derives_precise {A} {JA: Join A}{PA: Perm_alg A}:
   forall P Q, (P |-- Q) -> precise Q -> precise P.
@@ -187,16 +187,12 @@ Proof.
 intros.
 extensionality w; apply prop_ext; split; intros.
 destruct H as [w1 [w2 [? [? ?]]]].
-generalize (identity_unit (a:=w1) H1); intro.
-spec H2.
-econstructor; eauto.
-unfold unit_for in H2.
-generalize (join_eq H (join_comm H2)).
-intros; subst; auto.
-destruct (join_ex_identities w) as [e [? ?]].
-exists w; exists e; repeat split; auto.
-apply join_comm.
-apply identity_unit; auto.
+apply identity_unit in H1; subst.
+eapply join_eq in H; [|eapply join_comm, join_unit].
+subst; auto.
+exists w, the_unit; repeat split; auto.
+apply join_comm, join_unit.
+apply unit_identity.
 Qed.
 
 Lemma emp_sepcon {A} {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}:
@@ -206,11 +202,8 @@ Proof. intros. rewrite sepcon_comm; rewrite sepcon_emp; auto. Qed.
 Lemma precise_emp {A} {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}:
      precise emp.
 Proof.
-intros.
-rewrite precise_eq.
-intros.
-repeat rewrite emp_sepcon.
-auto.
+repeat intro.
+repeat match goal with H : emp _ |- _ => apply identity_unit in H end; subst; auto.
 Qed.
 
 Definition exactly {A} (x: A) : pred A := fun w => w=x.
@@ -291,9 +284,7 @@ Lemma emp_wand {A} {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}:
 Proof.
 intros.
 extensionality w; apply prop_ext; split; intros.
-destruct (join_ex_units w) as [e ?].
-eapply H; eauto.
-eapply unit_identity; eauto.
+eapply H; [apply join_unit | apply unit_identity].
 intro; intros.
 replace z with w; auto.
 Qed.
@@ -326,11 +317,11 @@ intros.
 extensionality w; apply prop_ext; split; intros.
 destruct H as [w1 [w2 [? [? ?]]]].
 replace w with w2; auto.
+apply identity_unit in H0; subst.
 eapply join_eq; eauto.
-eapply identity_unit; eauto.
-destruct (join_ex_units w) as [e ?].
-exists e; exists w.
-split; auto. split; auto.
+apply join_unit.
+exists the_unit; exists w.
+split; [apply join_unit|]. split; auto.
 eapply unit_identity; eauto.
 Qed.
 
@@ -410,11 +401,8 @@ unfold ewand in H3.
 destruct H3 as [w1' [w3 [? [? ?]]]].
 assert (w1'=w1).
   apply H0; auto.
-  apply comparable_trans with w2. eapply join_comparable2; eauto.
-  apply comparable_sym.  eapply join_comparable2; eauto.
-  subst.
 replace w with w3; auto.
-eapply join_eq; eauto.
+subst; eapply join_eq; eauto.
 Qed.
 
 Lemma exists_expand_sepcon {A}  {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}:
@@ -777,23 +765,17 @@ intros.
 apply pred_ext; intros w ?.
 destruct H1 as [w1 [w2 [? [? ?]]]].
 unfold pure in *.
-assert (unit_for w1 w2). apply H in H2; simpl in H2;
-apply identity_unit; auto. exists w; auto.
-unfold unit_for in H4.
-assert (w2=w) by (apply (join_eq H4 H1)).
-subst w2.
-assert (join w w1 w1).
-apply identity_unit; apply H0 in H3; simpl in H3; auto. exists w; auto.
-assert (w1=w) by (apply (join_eq H5 (join_comm H1))).
-subst w1.
-split; auto.
+assert (w1 = the_unit).
+{ apply H, identity_unit in H2; auto. }
+assert (w2 = the_unit).
+{ apply H0, identity_unit in H3; auto. }
+assert (w = the_unit).
+{ subst; eapply join_eq; eauto; apply join_unit. }
+subst; split; auto.
 destruct H1.
 exists w; exists w; split; [|split]; auto.
-apply H in H1.
-clear dependent P. clear dependent Q.
-pose proof (core_unit w); unfold unit_for in *.
-pose proof (H1 _ _ (join_comm H)).
-rewrite H0 in H; auto.
+apply H, identity_unit in H1; subst.
+apply join_unit.
 Qed.
 
 Lemma pure_sepcon_TT_andp {A} {JA: Join A}{PA: Perm_alg A}{SA: Sep_alg A}:
